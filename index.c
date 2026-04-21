@@ -14,6 +14,7 @@
 //
 // PROVIDED functions: index_find, index_remove, index_status
 // TODO functions:     index_load, index_save, index_add
+// Phase 3: index handling refinement
 
 #include "index.h"
 #include <stdio.h>
@@ -261,12 +262,17 @@ int index_add(Index *index, const char *path) {
     }
 
     // Step 7: fill entry
-    entry->mode = st.st_mode;
-    entry->mtime_sec = st.st_mtime;
-    entry->size = st.st_size;
-    strcpy(entry->path, path);
-    entry->hash = id;
+if (st.st_mode & S_IXUSR) {
+    entry->mode = 0100755;
+} else {
+    entry->mode = 0100644;
+}
 
-    // Step 8: save index
-    return index_save(index);
+entry->mtime_sec = st.st_mtime;
+entry->size = st.st_size;
+strcpy(entry->path, path);
+entry->hash = id;
+
+// Step 8: save index
+return index_save(index);
 }
